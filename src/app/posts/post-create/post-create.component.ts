@@ -16,7 +16,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   post!: Post;
   isLoading=false;
   form!:FormGroup;
-  imagePreview!:string|ArrayBuffer|null;
+  imagePreview!:any;
   postSub = new Subscription();
 
   constructor(private postService:PostServiceService, private route:ActivatedRoute){}
@@ -44,9 +44,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
       this.postSub = this.postService.getPost(this.postId).subscribe(
         (res:any)=>{
           this.isLoading = false;
-          let post_ = {id:res['_id'], title:res.title, content:res.content}
+          let post_ = {id:res['_id'], title:res.title, content:res.content, imagePath:res.imagePath}
           this.post = post_;
-          this.form.setValue({title:this.post.title, content:this.post.content})
+          this.form.setValue({title:this.post.title, content:this.post.content, image:this.post.imagePath});
+          this.imagePreview = this.post.imagePath;
         }
         
       );
@@ -60,7 +61,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     if(this.postId){
       const post:Post= {title:this.form.value.title, content:this.form.value.content};
-      this.postService.updatePost(this.postId, post);
+      this.postService.updatePost(this.postId, this.form.value.title, this.form.value.content, this.form.value.image);
 
     }else{
       this.postService.addPost(this.form.value.title, this.form.value.content, this.form.value.image);
